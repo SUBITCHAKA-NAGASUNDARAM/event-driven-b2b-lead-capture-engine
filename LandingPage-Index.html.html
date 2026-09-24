@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>B2B Lead Qualification</title>
+  <style>
+    body { font-family: system-ui, sans-serif; background: #0f172a; color: #f8fafc; display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; }
+    .card { background: #1e293b; padding: 2rem; border-radius: 12px; width: 100%; max-width: 400px; box-shadow: 0 10px 25px rgba(0,0,0,0.3); }
+    h2 { margin-top: 0; color: #38bdf8; }
+    label { display: block; margin: 12px 0 4px; font-size: 0.875rem; }
+    input, select { width: 100%; padding: 10px; border-radius: 6px; border: 1px solid #334155; background: #0f172a; color: #fff; box-sizing: border-box; }
+    button { width: 100%; margin-top: 20px; padding: 12px; background: #0284c7; color: white; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; }
+    button:hover { background: #0369a1; }
+    #status { margin-top: 15px; font-size: 0.9rem; text-align: center; color: #4ade80; }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h2>Book a Strategy Call</h2>
+    
+    <!-- Hidden iframe catches the response so the page doesn't refresh or navigate away -->
+    <iframe name="hidden_iframe" id="hidden_iframe" style="display:none;" onload="if(submitted) { document.getElementById('status').innerText='✅ Success! Lead routed to n8n.'; }"></iframe>
+    
+    <form action="ProductionURL">
+      <label>Full Name</label>
+      <input type="text" name="full_name" required placeholder="Alex Mercer">
+
+      <label>Work Email</label>
+      <input type="email" name="email" required placeholder="alex@company.com">
+
+      <label>Phone Number</label>
+      <input type="tel" name="Phone" required placeholder="+15550192834">
+
+      <label>Company Name</label>
+      <input type="text" name="company" required placeholder="Apex Media">
+
+      <label>Annual Revenue</label>
+      <select name="revenue-range">
+        <option value="Under $10k">Under $10k</option>
+        <option value="$10k-$50k">$10k - $50k</option>
+        <option value="$50k+">$50k+</option>
+      </select>
+
+      <button type="submit">Submit Lead</button>
+    </form>
+    <div id="status"></div>
+  </div>
+
+  <script>
+    var submitted = false;
+  </script>
+</body>
+</html>

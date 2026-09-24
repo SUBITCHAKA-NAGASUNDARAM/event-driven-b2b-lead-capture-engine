@@ -1,0 +1,344 @@
+{
+  "name": "B2B-Lead-CaptureEngine",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "lead-capture",
+        "options": {
+          "allowedOrigins": "*"
+        }
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        0,
+        0
+      ],
+      "id": "Your_ID_Here",
+      "name": "Webhook",
+      "webhookId": "Your_ID_Here"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "Your_ID_Here",
+              "name": "=Full name",
+              "value": "={{ $json.body.full_name ? $json.body.full_name.trim() : '' }}",
+              "type": "string"
+            },
+            {
+              "id": "Your_ID_Here",
+              "name": "email",
+              "value": "={{ $json.body.email ? $json.body.email.toLowerCase().trim() : '' }}",
+              "type": "string"
+            },
+            {
+              "id": "Your_ID_Here",
+              "name": "Phone",
+              "value": "={{ $json.body.Phone ? $json.body.Phone.replace(/[^0-9+]/g, '') : '' }}",
+              "type": "string"
+            },
+            {
+              "id": "Your_ID_Here",
+              "name": "company",
+              "value": "={{ $json.body.company }}",
+              "type": "string"
+            },
+            {
+              "id": "Your_ID_Here",
+              "name": "revenue-range",
+              "value": "={{ $json.body['revenue-range'] }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        208,
+        0
+      ],
+      "id": "Your_ID_Here",
+      "name": "Edit Fields"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "=https://api.groq.com/openai/v1/chat/completions",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "=Bearer Your_Data_Here"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"model\": \"openai/gpt-oss-120b\",\n  \"response_format\": { \"type\": \"json_object\" },\n  \"messages\": [\n    {\n      \"role\": \"system\",\n      \"content\": \"You are a B2B lead scoring engine. Calculate the lead score out of 100 using this exact mathematical rubric:\\n1. Base points for complete contact info (Full Name, Work Email, Phone Number, Company Name present): Add 60 points.\\n2. Revenue Tier points:\\n   - '$10k-$50k': Add 25 points\\n   - '$50k+': Add 40 points\\nReturn JSON with a single key 'score' containing the final integer sum.\"\n    },\n    {\n      \"role\": \"user\",\n      \"content\": \"Name: {{ $('Edit Fields').item.json['Full name'] }}\\nEmail: {{ $('Edit Fields').item.json.email }}\\nPhone: {{ $('Edit Fields').item.json.Phone }}\\nCompany: {{ $('Edit Fields').item.json.company }}\\nRevenue: {{ $('Edit Fields').item.json['revenue-range'] }}\"\n    }\n  ]\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        416,
+        0
+      ],
+      "id": "Your_ID_Here",
+      "name": "HTTP Request"
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "Your_ID_Here",
+          "mode": "list",
+          "cachedResultName": "B2B Lead Database n8n Automation",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/Your_ID_Here/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/Your_ID_Here/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Submitted At": "={{ $now.format('yyyy-MM-dd HH:mm:ss') }}",
+            "Full Name": "={{ $('Edit Fields').item.json['Full name'] }}",
+            "Work Email": "={{ $('Edit Fields').item.json.email }}",
+            "Phone Number": "={{ $('Edit Fields').item.json.Phone }}",
+            "Company Name": "={{ $('Edit Fields').item.json.company }}",
+            "Annual Revenue": "={{ $('Edit Fields').item.json['revenue-range'] }}",
+            "Lead Triage & AI Score": "={{ JSON.parse($('HTTP Request').item.json.choices[0].message.content).score }}/100"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Submitted At",
+              "displayName": "Submitted At",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Full Name",
+              "displayName": "Full Name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Work Email",
+              "displayName": "Work Email",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Phone Number",
+              "displayName": "Phone Number",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Company Name",
+              "displayName": "Company Name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Annual Revenue",
+              "displayName": "Annual Revenue",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Lead Triage & AI Score",
+              "displayName": "Lead Triage & AI Score",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        640,
+        0
+      ],
+      "id": "Your_ID_Here",
+      "name": "Append row in sheet",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "Your_ID_Here",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "Your_ID_Here",
+              "leftValue": "={{ JSON.parse($('HTTP Request').item.json.choices[0].message.content).score }}",
+              "rightValue": 80,
+              "operator": {
+                "type": "number",
+                "operation": "gte"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        848,
+        0
+      ],
+      "id": "Your_ID_Here",
+      "name": "If"
+    },
+    {
+      "parameters": {
+        "sendTo": "Your_Data_Here",
+        "subject": "=Qualified Lead (Score: {{ JSON.parse($('HTTP Request').item.json.choices[0].message.content).score }}/100) - {{ $('Edit Fields').item.json.company }}",
+        "message": "=A new high-priority lead was submitted:  - Name: {{ $('Edit Fields').item.json['Full name'] }} - Email: {{ $('Edit Fields').item.json.email }} - Company: {{ $('Edit Fields').item.json.company }} - Revenue: {{ $('Edit Fields').item.json['revenue-range'] }} - AI Score: {{ JSON.parse($('HTTP Request').item.json.choices[0].message.content).score }}/100",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        1072,
+        -16
+      ],
+      "id": "Your_ID_Here",
+      "name": "Send a message",
+      "webhookId": "Your_ID_Here",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "Your_ID_Here",
+          "name": "Gmail account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request": {
+      "main": [
+        [
+          {
+            "node": "Append row in sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "Send a message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Append row in sheet": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "availableInMCP": false
+  },
+  "versionId": "Your_ID_Here",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "Your_ID_Here"
+  },
+  "id": "Your_ID_Here",
+  "tags": []
+}
